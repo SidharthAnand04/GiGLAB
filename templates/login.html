@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  /* Add custom styles for the login page */
+  body {
+    background: linear-gradient(to bottom right, #2568e4, #e40b0b); /* Color gradient background */
+  }
+
+  .login-title {
+    text-align: center;
+
+    margin-bottom: 20px;
+  }
+
+
+  .btn-signup {
+    background-color: #28a745;
+    border-color: #28a745;
+    margin-top: 10px; /* Add margin to the top of the button */
+  }
+
+  .btn-signup:hover {
+    background-color: #218838;
+    border-color: #218838;
+  }
+</style>
+
+<div class="container">
+  <div class="row justify-content-center align-items-center vh-100">
+    <div class="col-md-6">
+      <div class="login-box" id="content_box">
+        <h1 class="login-title">Login</h1>
+        <form method="POST" action="/login" class="my-4">
+          {{ form.csrf_token }}
+          <div class="form-group">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+          </div>
+          <button type="submit" class="btn btn-success btn-block btn-signup">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

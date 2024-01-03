@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4" id="content_box" style="margin-bottom: 1%;">
+    <h1 class="mb-4">Career Development Marketplace</h1>
+
+
+<!-- show user score summary -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Combined Score Summary</h5>
+            
+            <h6 class="card-subtitle mb-2 text-muted">Mastery: {{ user.score['Combined Score']['classification'] }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Your overall score is {{ user.score['Combined Score']['assessment score'] }}</h6>
+
+        </div>
+    </div>  
+
+    <h2 class="mb-4">Recommended Resources</h2>
+    <p>Based on your survey results, we have curated the following resources to help you develop your career.</p>
+    <!-- loop through recommendations and show them  in a 3x3 grid format-->
+    {% for recommendation in recommendations %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ recommendation.link }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Mastery Level: {{ recommendation['combined score'] }} - {{ recommendation['combined score'] + recommendation['range']}}</h6>
+            <!-- <p class="card-text">{{ recommendation.description }}</p> -->
+            <a href="{{ recommendation.link }}" target="_blank" class="btn btn-primary">View</a>
+        </div>
+    </div>
+    {% endfor %}
+
+
+
+
+    <h2 class="mb-4">Career Development Marketplace</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="/static/images/item1.jpeg" class="card-img-top" alt="Item 1">
+                <div class="card-body">
+                    <h5 class="card-title">Online Courses</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Mastery Level: Dabbler</h6>
+                    <p class="card-text">Explore a variety of online courses to enhance your skills.</p>
+                    <a href="https://www.youtube.com/watch?v=a6g8y3EDHkw&pp=ygUSY2FyZWVyIGRldmVsb3BtZW50" target="_blank" class="btn btn-primary">Watch Video</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="/static/images/item2.jpeg" class="card-img-top" alt="Item 2">
+                <div class="card-body">
+                    <h5 class="card-title">Career Success Tips</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Mastery Level: Apprentice</h6>
+                    <p class="card-text">Read advice from LinkedIn career experts on succeeding in 2023.</p>
+                    <a href="https://www.forbes.com/sites/jackkelly/2023/01/02/linkedin-career-experts-offer-advice-on-how-people-can-succeed-in-2023/?sh=59a72a0a3473" target="_blank" class="btn btn-primary">Read Article</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="/static/images/item3.jpeg" class="card-img-top" alt="Item 3">
+                <div class="card-body">
+                    <h5 class="card-title">Effective Networking</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Mastery Level: Pro</h6>
+                    <p class="card-text">Learn the art of networking for career growth.</p>
+                    <a href="https://www.youtube.com/watch?v=SIx7wi3DqY8&pp=ygUSY2FyZWVyIGRldmVsb3BtZW50" target="_blank" class="btn btn-primary">Watch Video</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="/static/images/item4.jpeg" class="card-img-top" alt="Item 4">
+                <div class="card-body">
+                    <h5 class="card-title">Resume Writing Tips</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Mastery Level: Pro</h6>
+                    <p class="card-text">Discover how to craft an impressive resume.</p>
+                    <a href="https://www.youtube.com/watch?v=kFJkww0LwOI&pp=ygUSY2FyZWVyIGRldmVsb3BtZW50" target="_blank" class="btn btn-primary">Watch Video</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="/static/images/item5.png" class="card-img-top" alt="Item 5">
+                <div class="card-body">
+                    <h5 class="card-title">Interview Success</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Mastery Level: Pro</h6>
+                    <p class="card-text">Ace your job interviews with expert advice.</p>
+                    <a href="https://www.youtube.com/watch?v=Cj98mr_wUA0&pp=ygUOaG93IHRvIG5ldHdvcms%3D" target="_blank" class="btn btn-primary">Watch Video</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

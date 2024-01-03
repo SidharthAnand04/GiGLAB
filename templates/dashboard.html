@@ -1,0 +1,231 @@
+
+{% extends "base.html" %}
+{% block content %}
+<head>
+  <title>Dashboard</title>
+  <style>
+ 
+    .container {
+    max-height: calc(100vh - 20px); /* Set max height to the viewport height minus padding */
+      overflow: hidden; /* Hide any content that overflows */
+      display: flex;
+    }
+
+    .left-column {
+      flex: 1;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+      overflow: auto; /* Enable scrolling for the left column */
+      max-height: calc(100vh - 40px); /* Set max height to the viewport height minus padding */
+    }
+
+    .right-column {
+      flex: 2;
+      padding: 20px;
+      overflow: hidden; /* Prevent scrolling for the right column */
+    }
+
+
+    .category {
+      cursor: pointer;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .category:hover {
+      background-color: #f0f0f0;
+    }
+
+    .category-name {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .category-progress {
+      background-color: #f0f0f0;
+      height: 10px;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+
+    .category-progress-bar {
+      height: 100%;
+      background-color: #0f92e3;
+      border-radius: 5px;
+    }
+
+    .category-score {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .category-classification {
+      display: block;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .category-min-max {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .details-panel {
+      margin-top: 20px;
+    }
+
+    .details-content {
+      display: none;
+    }
+
+  </style>
+  {% if results %}
+  <script>
+    function showDetails(category) {
+
+      const detailsContent = document.getElementById('details-content');
+      let description = '';
+      let score = '';
+      let mastery = '';
+
+      switch (category) {
+        case 'Develop':
+          description = `Your development scores indicate how much of your career development efforts are geared
+          towards the development of your capabilities (skills and domain expertise) and relationships.
+          The development of capabilities contributes to an improvement of your unique value
+          proposition. The more capabilities you have, the more marketable you are in the talent market.
+          Good relationships are invaluable in all aspects of career development and management.
+          From helping you discover opportunities to providing important feedback.
+          Relationships are often the key difference between an average career and a great one.`;
+          score = {{ results['Develop']['assessment score']}};
+          mastery = `{{ results['Develop']['classification']}}`;
+          break;
+        case 'Discover':
+          description = `Your discovery scores indicate how much of your career development efforts are geared
+          towards Self-Discovery and Opportunity-Discovery.
+          Self-Discovery is about understanding more about yourself – your personality, talents,
+          motivation, and values.
+          Opportunity-Discovery describes the discipline of ongoing research into career opportunities,
+          so you can maintain a feel for the marketability of your capabilities and career opportunities
+          of interest and how these are changing.`;
+          score = {{ results['Discover']['assessment score']}} ;
+            mastery = `{{ results['Discover']['classification']}}`;
+          break;
+        case 'Differentiate':
+          description = `Your differentiation score evaluates the investment you’re making in gaining visibility in your profession.
+          Visibility allows others to become familiar with your capabilities.
+          Differentiation is also a function of your ability to articulate a synthesis of your knowledge
+          and capabilities in a career context such as when meeting a customer or potential employer for the first time
+          or when participating in a recruiting and hiring process.`;
+          score = {{ results['Differentiate']['assessment score'] }};
+            mastery = `{{ results['Differentiate']['classification']}}`;
+          break;
+        case 'Document':
+          description = `Your documentation score evaluates your awareness of tools commonly used to document and promote your
+          capabilities within a career context. Examples of these common tools include your resume, cover letter,
+          and LinkedIn profile. Your score also indicates how diligently these documents are updated and the extent
+          they reflect best practices for preparing them.`;
+          score = {{ results['Document']['assessment score']}};
+            mastery = `{{ results['Document']['classification']}}`;
+          break;
+        case 'Develop Skills':
+            description = `Your development scores indicate how much of your career development efforts are geared`;
+            score = {{ results['Develop Skills']['assessment score']}};
+            mastery = `{{ results['Develop Skills']['classification']}}`;
+            break;
+        case 'Discover Self':
+            description = `Your discovery scores indicate how much of your career development efforts are geared`;
+            score = {{ results['Discover Self']['assessment score']}};
+            mastery = `{{ results['Discover Self']['classification']}}`;
+            break;
+        case 'Discover Opportunities':
+            description = `Your discovery scores indicate how much of your career development efforts are geared`;
+            score = {{ results['Discover Opportunities']['assessment score']}};
+            mastery = `{{ results['Discover Opportunities']['classification']}}`;
+            break;
+        case 'Develop Relationships':
+            description = `Your development scores indicate how much of your career development efforts are geared`;
+            score = {{ results['Develop Relationships']['assessment score']}};
+            mastery = `{{ results['Develop Relationships']['classification']}}`;
+            break;
+
+        case 'Combined Score':
+          description = `Your combined score is a weighted average of your scores for the four disciplines.
+          This score provides insight into how comprehensive the investment you’re making in
+          your career development is. A higher score is indicative of a greater investment in
+          your career development and a lower score is indicative of a lower investment.`;
+          score = {{ results['Combined Score']['assessment score']}};
+            mastery = `{{ results['Combined Score']['classification']}}`;
+            break;          
+      }
+      const content = `
+        <h1>${category}</h1>
+        <hr>
+        <p>${description}</p>
+        <h2>Mastery: ${mastery}</h2>
+        <h2>${category}: ${score}</h2>
+        <hr>
+        <h2>Next Steps</h2>
+        <p>Now that you’ve identified your level of competence in each of the four disciplines of career development, consider how the information can be used to formulate or refine your career development strategy. Consider prioritizing the discipline to focus on based on your level of competence in that discipline and your short term career goals. In general we recommend the following steps:</p>
+        <p><b>Prioritize Your Weakest Disciplines:</b> Use your score and the descriptions associated with your score range in each of the four discip lines to identify what you are doing well and keep doing those things. Identify the disciplines in which you exhibited the lowest scores and focus on those for improvement.</p>
+        <p><b>Prioritize Disciplines Based on Immediate Goals:</b> How you prioritize improvement in your weakest disciplines depends on your immediate career goals. For example, if you are currently actively seeking a new career opportunity and you appraised as a “Dabbler” in more than one discipline, one of which is the “Documentation” discipline, you should prioritize this discipline since it is so essential to moving through the hiring process. On the other hand, if you are looking to change careers, but you are not certain about what your next steps should be, and you appraised as a “Dabbler” in more than one discipline, one of which is the “Discovery” discipline, then your next steps should be to prioritize this discipline as it would be helpful in identifying career paths of interest.</p>
+        <p><b>Formulate or Refine Career Development Strategy:</b> Use specific suggestions provided below for each competency level for all four disciplines to formulate or refine your career development strategy</p>
+        <button onclick="showDefaultMessage();">Close</button>
+      `;
+      
+      detailsContent.innerHTML = content;
+      detailsContent.style.display = 'block';
+    }
+
+    // Show details for 'Combined Score' by default when the page loads
+    window.addEventListener('load', function() {
+      showDetails('Combined Score');
+    });
+
+    function showDefaultMessage() {
+      const detailsContent = document.getElementById('details-content');
+      const content = `
+        <h1>Please select a category to view details.</h1>
+      `;
+      detailsContent.innerHTML = content;
+      detailsContent.style.display = 'block';
+    }
+  </script>
+    {% else %}
+        <h1>Please take the Survey to see results</h1>
+    {% endif %}
+</head>
+<body>
+
+    <div class="container" style="padding-left: 2%;">
+        <h1>Survey Results</h1>
+
+    </div>
+  <div class="container">
+    <div class="left-column">
+      {% for category, data in results.items() %}
+      <div class="category" onclick="showDetails('{{ category }}')">
+        <span class="category-name">{{ category }}</span>
+        <div class="category-progress">
+          <div class="category-progress-bar" style="width: {{ data.percentage }}%;"></div>
+        </div>
+        <span class="category-score">{{ data['assessment score'] }}</span>
+        <span class="category-classification">Level: {{data.classification}}</span>
+        <span class="category-min-max">Min: 40 / Max: 160</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="right-column">
+      <div class="details-panel">
+        <div class="details-content" id="details-content">
+          <!-- Content will be dynamically updated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+{% endblock %}

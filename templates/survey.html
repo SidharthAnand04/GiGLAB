@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    /* Updated color scheme */
+    :root {
+        --highlight-blue: #20D869;
+        --highlight-green: #2ecc71;
+        --line-color: #20D869; /* New variable for line color */
+    }
+
+    .progress {
+        height: 20px;
+        margin-bottom: 20px;
+    }
+
+    .progress-bar {
+        background-color: var(--highlight-blue); /* Updated to use highlight blue */
+    }
+
+    .progress-text {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        line-height: 20px;
+        width: 100%;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    .question-container {
+        animation: fade 0.5s ease-in-out;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        animation: fade 0.5s ease-in-out;
+    }
+
+    .radio-options {
+        margin-top: 10px;
+    }
+
+    .form-check-label {
+        font-weight: normal;
+    }
+
+    @keyframes fade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .intro-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+    }
+
+    .intro-text {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .start-button {
+        margin-top: 20px;
+        background-color: var(--highlight-blue); /* Updated to use highlight blue */
+        border-color: var(--highlight-blue); /* Updated to use highlight blue */
+    }
+
+    .invalid-feedback {
+        color: var(--highlight-blue); /* Updated to use highlight blue */
+    }
+
+    /* New rule for horizontal lines */
+    hr {
+        border-color: var(--line-color);
+    }
+
+    /* Updated style for bubbles in select options */
+    .form-check-input[type="radio"] {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border: 2px solid var(--highlight-blue);
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        outline: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .form-check-input[type="radio"]:checked {
+        background-color: var(--highlight-blue);
+    }
+
+    .form-check-input[type="radio"]:focus {
+        box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    }
+</style>
+<body>
+    <div class="container">
+
+        <h1 class="text-center mb-4"><strong>Career Development Investment Appraisal™</strong></h1>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+                aria-valuemax="100">
+                <span class="progress-text">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container intro-container" id="intro_box">
+        <div class="intro-text">
+
+            
+            <p>
+                How Comprehensive Is Your Career Development Strategy?<br>
+                Developing an effective career development strategy requires a good understanding of how to invest your time and resources in the activities that comprise that strategy. CraftMASTERED’s Career Development Investment Appraisal™ (CDIA) is designed to increase your awareness of the scope of investment you are making in your career development and help you understand where your efforts might need a boost.
+            </p>
+            <p>
+                In taking the assessment, consider the career path that is of interest to you currently. For example, if you are a student who has not yet started your career or a professional with a current career but interested in changing careers, take the assessment from the perspective of the career path of interest. Review the assessment questions and select the response that best applies to you. There are no wrong responses. The quality of your personal appraisal and resulting recommendations depend on the accuracy of your responses, so do your best to be as accurate as possible.
+            </p>
+            <p>
+                Your personal CDIA results will be emailed to you along with recommendations for improving your career development strategy based on your results.
+            </p>
+            <p>
+                <strong>Please Note:</strong> This assessment should take approximately 15 to 20 minutes to complete and should be completed in one sitting. If you exit the site prior to submitting your assessment your answers will not be saved.
+            </p>
+        </div>
+        <button class="btn btn-primary start-button" id="startBtn">Start Survey</button>
+    </div>
+
+    <div class="container bg-light" id="content_box" style="display: none;">
+
+        <form id="surveyForm" method="post" action="/submit">
+            {{ csrf_token }}
+
+            <div class="question-container">
+                {% for question in questions %}
+                <div class="form-group question" id="{{ question.id }}"
+                    {% if loop.index != 1 %}style="display: none;"{% endif %}>
+                    <h2><label class="mb-2">{{ question.id }}. {{ question.question }}</label></h2>
+                    {% if question.type == 'select-one' %}
+                    <div class="radio-options">
+                        {% for option in question.options %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="{{ question.id }}"
+                                id="{{ question.id }}-{{ loop.index }}" value="{{ option }}">
+                            <label class="form-check-label" for="{{ question.id }}-{{ loop.index }}"><p>{{ option[0] }}</p></label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="invalid-feedback">Please select an option before proceeding.</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="button-container">
+                <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">Previous</button>
+                <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Submit</button>
+            </div>
+        </form>
+    </div>
+
+
+    <script>
+        const questions = document.querySelectorAll('.question');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const startBtn = document.getElementById('startBtn');
+        const introBox = document.getElementById('intro_box'); // Add this line
+        const contentBox = document.getElementById('content_box'); // Add this line
+        const progressBar = document.querySelector('.progress-bar');
+        const progressText = progressBar.querySelector('.progress-text');
+        let currentQuestionIndex = 0;
+    
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
+            progressText.textContent = `${Math.round(progress)}%`;
+        }
+    
+        function showQuestion(index) {
+            questions.forEach((question, i) => {
+                if (i === index) {
+                    question.style.display = 'block';
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+    
+            updateProgressBar();
+    
+            if (currentQuestionIndex === 0) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+            }
+    
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+            }
+        }
+    
+        startBtn.addEventListener('click', () => {
+            introBox.style.display = 'none'; // Hide the intro text
+            contentBox.style.display = 'block'; // Show the content box
+            showQuestion(currentQuestionIndex);
+        });
+    
+        prevBtn.addEventListener('click', () => {
+            currentQuestionIndex = Math.max(currentQuestionIndex - 1, 0);
+            showQuestion(currentQuestionIndex);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const selectedOption = questions[currentQuestionIndex].querySelector('input[type="radio"]:checked');
+            if (!selectedOption) {
+                questions[currentQuestionIndex].querySelector('.radio-options').classList.add('is-invalid');
+                return;
+            }
+            
+            questions[currentQuestionIndex].querySelector('.radio-options').classList.remove('is-invalid');
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            }
+        });
+
+        submitBtn.addEventListener('click', () => {
+            // You can perform final form validation here before submitting
+        });
+
+        // Show the first question initially
+        // showQuestion(currentQuestionIndex); // Remove this line
+    </script>
+</body>
+{% endblock %}

@@ -1,0 +1,505 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if results['Combined Score'] %}
+
+<head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</head>
+<style>
+    :root {
+        --highlight-blue: #3498db;
+        --highlight-green: #2ecc71;
+        --line-color: #3498db;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'barlow condensed', sans-serif;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
+    .profile-info-card {
+        
+        /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); */
+        /* display: flex; */
+        /* padding: 20px; */
+    }
+/* 
+    .profile-picture {
+        margin-right: 20px;
+    } */
+
+    #profile-picture-preview {
+        max-width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    #profile-picture-input {
+        display: none;
+        
+    }
+
+    .progress {
+        height: 8px;
+        margin-top: 8px;
+    }
+
+    .mastery {
+        font-size: 14px;
+        font-weight: bold;
+        color: var(--highlight-blue);
+    }
+
+    .next-steps {
+        margin-top: 8px;
+    }
+
+    .pie-container {
+        position: relative;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pie-number {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .col-md-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .description-row {
+        margin-top: 20px;
+    }
+
+    .description-col {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .description-icon {
+        width: 100%;
+        max-width: 60px;
+        height: auto;
+    }
+
+    .description-text {
+        margin-top: 10px;
+    }
+
+    .score-overview-card {
+        margin-bottom: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-overview-card .card-body {
+        padding: 20px;
+    }
+
+    .score-overview-title {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .category-min-max {
+        font-size: 12px;
+        color: var(--highlight-blue);
+    }
+
+    .score-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .score-details strong {
+        font-weight: bold;
+    }
+
+    .progress-bar {
+        background-color: var(--highlight-green);
+    }
+
+    
+
+    .score-row h1{
+        font-size: x-large;
+    }
+
+    .score-row{
+        margin-top:2%;
+    }
+
+
+    .progress-bar-info2 {
+
+      position: relative;
+      max-width: 100%;
+      height: 10%;
+      background-color: #eee;
+      overflow: fit;
+    }
+    .progress-bar-info {
+        margin-top:5%;
+
+      position: relative;
+      max-width: 100%;
+      height: 10%;
+      background-color: #eee;
+      /* overflow: cover; */
+    }
+    
+    .progress-bar-info p{
+        /* font-size: 0.15  */
+    }
+    .ticker,
+    .label {
+    /* border-radius: 20%; */
+      position: absolute;
+      height: 100%;
+
+    }
+
+    .ticker {
+      width: 4px;
+      background-color: #3498db;
+    }
+
+    .label {
+      text-align: center;
+      width: 25%;
+    }
+    .percentage-text {
+  position: absolute;
+}
+</style>
+
+
+
+<body>
+    
+    <script>
+        const button = document.getElementById('download-button');
+
+        function generatePDF() {
+            // Choose the element that your content will be rendered to.
+            const element = document.getElementById('report-content');
+            var opt = {
+                filename: '{{ user.name }}_Career_Development_Investment_Report.pdf',
+            };
+            // Choose the element and save the PDF for your user.
+            html2pdf().set(opt).from(element).save();
+        }
+
+        button.addEventListener('click', generatePDF);
+    </script>
+
+    <div id="report-content">
+    <section>
+    <div class="container mt-5">
+        <div class="row equal-heigh">
+            <div class="col-md-4">
+                
+                   
+                <div class="profile-picture">
+                    <img id="profile-picture-preview" src="static/uploads/{{ user.profile_picture }}"
+                        alt="Profile Picture">
+                    <input type="file" id="profile-picture-input">
+                </div>
+                <div class="profile-details">
+                    <h1>{{ user.name }}
+                    <p>{{ user.description }}</p>
+                    <p>{{ user.role}}, {{ user.affiliation }}</p>
+                    <p><a class="nav-link" href="{{ url_for('profile_update') }}">Update Profile</a></p></h1>
+                </div>
+            </div>
+            
+
+            <div class="col-md-8" style="margin-top: 5%;">
+                <div class="progress-bar-info">
+                    <div class="percentage-text" style="left: 50%;"><p>Combined Score: {{ results['Combined Score']['assessment score'] }}</p></div>
+                </div>
+                <div class="progress-bar-info2">
+                    
+                    <div class="ticker" style="left: 0%;"></div>
+                    <div class="ticker" style="left: 25%;"></div>
+                    <div class="ticker" style="left: 50%;"></div>
+                    <div class="ticker" style="left: 75%;"></div>
+                    <div class="ticker" style="left: 100%;"></div>
+                  
+                    <div class="label" style="left: 0%;"><p>Dabbler (40-60)</p></div>
+                    <div class="label" style="left: 25%;"><p>Apprentice (61-100)</p></div>
+                    <div class="label" style="left: 50%;"><p>Pro (100-140)</p></div>
+                    <div class="label" style="left: 75%;"><p>Master (141-160)</p></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row score-row">
+            {% for key, value in results.items() %}
+                {% if key in ['Combined Score', 'Discover', 'Develop', 'Differentiate', 'Document'] %}
+                    <div class="col-sm auto" style="padding-left: 1%;">
+                        <div class="align-items-center text-center justify-content-between">
+                            <h1>{{ key }}</strong></h1>
+                            <p>{{ value['classification'] }}</p>
+                        </div>
+                        <div class="pie-container">
+                            <div class="pie" style="position: relative;" data-pie='{"percent": {{value['percentage']}}, "colorSlice": "#2978F9", "colorCircle": "#e6e6e6", "strokeWidth": 15, "number": 0}'></div>
+                            <p class="pie-number">{{ value['assessment score'] }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+</div>
+    </section>
+
+        
+
+
+
+    <section>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-1 auto">
+                    <img src="static/images/combinedicon.png" alt="Combined" width="100%" height="auto">
+                </div>
+                <div class="col-lg augo">
+                    <h1>Combined Score</h1>
+                    <p>Your combined score is a weighted average of your scores for the four disciplines of career development investment. This score provides insight into how comprehensive the investment you’re making in your career development is. A higher score is indicative of a greater investment in your career development and a lower score is indicative of a lower investment. Based on your score, you are ranked as a dabbler, apprentice, pro, or master. </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1 auto">
+                    <img src="static/images/discovericon.png" alt="discover" width="100%" height="auto">
+                </div>
+                <div class="col-lg augo">
+                    <h1>Discover</h1>
+                    <p>Your discovery scores indicate how much of your career development efforts are focused on self-discovery, and opportunity discovery. <strong>Self-discovery</strong> is about understanding more about yourself, your personality, strengths, and values. <strong>Opportunity-discovery</strong> describes discipline of continuing to learn about career opportunities that align with your strengths and your interests so you can maintain a pulse on the marketability of your skills.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1 auto">
+                    <img src="static/images/developicon.png" alt="develop" width="100%" height="auto">
+                </div>
+                <div class="col-lg augo">
+                    <h1>Develop</h1>
+                    <p>Your development scores indicate how much of your career development efforts are geared towards the development of your capabilities (skills and domain expertise) and relationships. The development of capabilities contribute to an improvement of your unique value proposition. The more capabilities you have, the more marketable you are in the talent market. Good relationships are invaluable in all aspects of career development and management. From helping you discover opportunities to providing important feedback. Relationships are often the key difference between an average career and a great one.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1 auto">
+                    <img src="static/images/differentiationicon.png" alt="Combined" width="100%" height="auto">
+                </div>
+                <div class="col-lg augo">
+                    <h1>Differentiation</h1>
+                    <p>Your differentiation score evaluates the investment you’re making in gaining visibility in your profession. Visibility allows others to become familiar with your capabilities. Differentiation is also a function of your ability to articulate a synthesis of your knowledge and capabilities in a career context such as when meeting a customer or potential employer for the first time or when participating in a recruiting and hiring process. </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1 auto">
+                    <img src="static/images/documentationicon.png" alt="Combined" width="100%" height="auto">
+                </div>
+                <div class="col-lg augo">
+                    <h1>Documentation</h1>
+                    <p>Your documentation score evaluates your awareness of tools commonly used to document and promote your capabilities within a career context. Examples of these common tools include your resume, cover letter and LinkedIn profile. Your score also indicates how diligently these documents are updated and the extent to which they reflect best practices for preparing them.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+    <div class="container mt-5">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card profile-card">
+                    <div class="card-body">
+                        <div>
+                            <h4 class="card-title">Score Overview</h4>
+                            <span class="category-min-max">Min: 40 / Max: 160</span>
+                        </div>
+                
+                        <div class="d-flex flex-wrap justify-content-between">
+                            {% for key, value in results.items() %}
+                            {% if key not in ['Combined Score'] %}
+                            <div class="col-md-4 mb-4" style="padding-left: 1%;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <strong>{{ key }}</strong> {{ value['assessment score'] }}
+                                    <span class="mastery">{{ value['classification'] }}</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar" role="progressbar"
+                                        style="width: {{ value['percentage'] }}%;"
+                                        aria-valuenow="{{ value['percentage'] }}" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+
+
+
+
+                                
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        
+        <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card profile-card">
+                    <div class="card-body">
+                        <h4 class="card-title">Description and Next Steps</h4>
+                        <div class="row">
+                            {% for key, value in results.items() %}
+                            {% if key not in ['Combined Score', 'Develop', 'Discover'] %}
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    {% if key in ['Discover Self', 'Discover Opportunities', 'Develop Skills', 'Develop
+                                    Relationships'] %}
+                                    <h5>{{key.split(' ')[0]}}: {{ key }}</h5>
+                                    {% else %}
+                                    <h5>{{ key }}</h5>
+                                    {% endif %}
+                                    <p>Score: {{ value['assessment score'] }}</p>
+                                    <p class="mastery">Mastery: {{ value['classification'] }}</p>
+                                    <p>{{ value['description'] }}</p>
+                                    <p class="next-steps"><strong>Next Steps:</strong> {{ value['next steps'] }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>  
+
+    <div class="text-center mt-3">
+        <button class="btn btn-primary" id="print-button" style="margin-bottom:1%">Print Profile</button>
+    </div>
+
+    <script>
+        const circle = new CircularProgressBar("pie");
+        circle.initial();
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+    // Get the progress bar element
+    var progressBar = document.querySelector('.progress-bar-info');
+
+    // Set the combined score value (change this value as needed)
+    var combinedScore = {{ results['Combined Score']['percentage'] }};
+
+    // Calculate the width based on the combined score
+    var progressBarWidth = combinedScore ;
+
+    // print it 
+    console.log(progressBarWidth);
+
+    // Set the width and color of the progress bar
+    progressBar.style.width = progressBarWidth + '%';
+    progressBar.style.backgroundColor = getProgressBarColor(combinedScore);
+
+    // Function to determine the color based on the combined score
+    function getProgressBarColor(score) {
+      if (score ) {
+        return '#2ecc71'; // Green
+      } else if (score >= 100) {
+        return '#f39c12'; // Orange
+      } else if (score >= 61) {
+        return '#3498db'; // Blue
+      } else {
+        return '#e74c3c'; // Red
+      }
+    }
+  });
+
+        const categoryCards = document.querySelectorAll('.card.description-card .mb-4');
+        categoryCards.forEach(card => {
+            card.addEventListener('click', () => {
+                categoryCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+
+        const printButton = document.getElementById('print-button');
+        printButton.addEventListener('click', () => {
+            window.print();
+        });
+
+        // Profile Picture Upload
+        const profilePictureInput = document.getElementById('profile-picture-input');
+        const profilePicturePreview = document.getElementById('profile-picture-preview');
+
+        profilePictureInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    profilePicturePreview.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Popup Functionality
+        const profileInfoCard = document.querySelector('.profile-info-card');
+        const profileDetails = document.querySelector('.profile-details');
+
+        profileInfoCard.addEventListener('click', function () {
+            profileDetails.classList.add('active');
+        });
+
+        profileDetails.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+
+        document.addEventListener('click', function () {
+            profileDetails.classList.remove('active');
+        });
+
+    
+
+
+    </script>
+    {% else %}
+        please take the survey first
+    {% endif %}
+
+</body>
+{% endblock %}

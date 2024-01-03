@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+  
+
+  .animate-in-view {
+    opacity: 0; /* Hidden by default */
+    transform: translateY(50px);
+    animation: fadeInUp 1s forwards, slideUp 1s forwards;
+  }
+
+  .signup-title a {
+    background-color: #20D869;
+    color: #000000;
+    text-decoration: none;
+    min-width: 100%;
+    justify-content: center;
+    padding: 10px 20px;
+    align-items: left;
+  }
+
+  .sec1 img {
+    max-width: 100px;
+    
+  }
+
+  .sec1-info{
+    padding: 2.5% 10% 0% 10%;
+    text-align: center;
+    /* justify-items: center; */
+  }
+
+  .info-text {
+    text-align: center;
+    margin-top: 5%;
+    max-width: 90%;
+    
+  }
+
+  .info-text h1{
+    font-family: 'barlow-condensed', sans-serif;
+    /* font-size: 3em; */
+    /* margin: 0.5em 0; */
+    letter-spacing: 5px;
+    font-weight: bold;
+  }
+  /* Animation Keyframes */
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideUp {
+    to {
+      transform: translateY(0);
+    }
+  }
+
+
+</style>
+
+<!-- Section 1 -->
+<section class="bg-light py-5 sec1">
+  
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-2">
+    
+        <img src="static/images/graph1.png" alt="Graph 1" class="img-fluid">
+
+
+
+      </div>
+      <div class="col auto">
+        <p>
+            Did you know that according to a recent study, only 32% of traditional students feel prepared for their careers?
+          </p>
+      </div>
+    
+      <div class="col-sm-1"></div>
+    
+        <div class="col-2" width="">
+      
+            <img src="static/images/graph2.png" alt="Graph 2" class="img-fluid " width="100%">
+        </div>
+        <div class="col auto">
+            <p>
+                How about that only 20% of employers believe students are prepared for career management?
+              </p>
+        </div>
+      </div>
+    
+      <div class="sec1-info">
+      <p>
+        These statistics may not be all that surprising based on your own experiences. Most of our formal education focuses on gaining competency in a specific domain such as computer science, business, engineering, or design. If your experience is like most, however, very little time was dedicated to teaching you the skills that would help you become and remain employable throughout your career. Furthermore, after you’ve entered the labor market, career development investment made by your employer is typically more directed towards the needs of that employer as opposed to your own personal career development goals.
+      </p>
+    </div>
+</section>
+
+<!-- Section 2 -->
+<section class="bg-white py-5">
+  <div class="container">
+    <div class="text-center">
+      <h1>Mission</h1>
+      <p>
+        GiGLAB, was founded to curate resources and create strategic frameworks with the sole purpose of helping you manage your career. We make you our priority and go to work developing tools and resources to help you meet your career goals. And, as the nature of work, the organization of the global labor market, and the needs of the economy inevitably change, we refine and adapt the tools and resources we provide to these changing needs.
+      <p>
+      <p style="font-weight: bolder;">
+        We do the work for you, so you are always prepared.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Section 3 -->
+<section class="bg-light py-5">
+    <div class="signup-title">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <img src="static/images/classroom.jpeg" alt="Classroom" class="img-fluid">
+      </div>
+      <div class="col-md-6">
+        <p>
+          Are you an incoming or current undergraduate or graduate student who wants to ensure you develop the necessary skills to effectively launch and manage your career? Are you a parent who wants to make sure your student gets the most out of their education? Are you a professional or gig worker who wants to take control of your career development?
+        </p>
+        <p>
+          If so, we have a solution for you! We provide you with a free Career Development Investment Appraisal (tm) (CDIATM) to help you assess the investment you’re making in your career development and highlight where your investment efforts might need a boost. You can then register for our Four Disciplines of Career Development course to learn our framework for a more comprehensive strategy for career development and we will contact you when the course goes live. Finally, as a member of our community, you’ll get access to tools curated for you to boost your career development investment in the areas you need it the most. Get started now by taking the assessment.
+        </p>
+        <a href="/signup">Take the Free Assessment</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+
+<!-- Section 4 -->
+
+<section class="container mt-5 animate-in-view d-flex justify-content-center">
+    <div class="info-text">
+      <h1>Four Disciplines of Career Development Investment</h1>
+      <p>To progress in your career, you need to make systematic investments in your career development. But where should those investments be directed? It’s difficult to know. This is why we created the 4Ds of Career Development InvestmentTM. Sign up for the 4Ds of Career Development InvestmentTM Course to learn what the framework entails and how to use it.</p>
+      
+      
+      <div class="row mt-4">
+      <img src="static/images/fourdisciplines.png" alt="4Ds" class="img-fluid">
+      </div>
+  
+  
+      <div class="container" id="about-info">
+        <div class="row justify-content-md-center">
+          <div class="col col-lg-6">
+            <p>
+              Enroll in 4Ds of Career Development Investment(tm) Course to learn more about the framework and how to use
+              it.
+            </p>
+          </div>
+          <div class="col col-lg-3">
+            <div class="container" id="about-info">
+                <a id='about-btn' href="/about" style="background-color: #20D869; color: #000000; display: flex; text-decoration: none; justify-content: center; padding: 10px 20px;">Learn More About Us</a>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}
