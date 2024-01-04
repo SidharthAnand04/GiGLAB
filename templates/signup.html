@@ -41,6 +41,22 @@
             {{ form.username(class="form-control") }}
           </div>
           <div class="form-group">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ form.affiliation.label(class="form-label") }}
+            {{ form.affiliation(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ form.role.label(class="form-label") }}
+            {{ form.role(class="form-control") }}
+          </div>
+          <div class="form-group">
             {{ form.password.label(class="form-label") }}
             {{ form.password(class="form-control") }}
           </div>
@@ -48,6 +64,7 @@
             {{ form.confirm_password.label(class="form-label") }}
             {{ form.confirm_password(class="form-control") }}
           </div>
+ 
           <button type="submit" class="btn btn-success btn-block btn-signup">Sign Up</button>
         </form>
       </div>

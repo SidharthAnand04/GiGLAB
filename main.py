@@ -1,101 +1,26 @@
-import string
-from flask import Flask, render_template, redirect, request, session, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
 import ast
-from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField
-from werkzeug.utils import secure_filename
-import os
-import json
-from datetime import datetime
 import csv
-from functools import wraps
+import json
+import os
 import random
-from wtforms import StringField, PasswordField, SubmitField, validators
+import string
+from datetime import datetime
+from functools import wraps
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-app.config['SECRET_KEY'] = 'your-secret-key'
-
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def generate_unique_filename(filename):
-    current_time = datetime.now().strftime('%Y%m%d%H%M%S')
-    random_string = ''.join(random.choices(string.ascii_lowercase, k=6))
-    unique_filename = f"{current_time}_{random_string}_{filename}"
-    return unique_filename
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-db = SQLAlchemy(app)
-
-class ContactForm(FlaskForm):
-    name = StringField('Your Name', validators=[validators.InputRequired()])
-    email = StringField('Your Email', validators=[validators.InputRequired(), validators.Email()])
-    message = TextAreaField('Your Message', validators=[validators.InputRequired()])
-    submit = SubmitField('Submit')
-
-class ContactUs(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    email = db.Column(db.String(50))
-    message = db.Column(db.Text)
-
-    def __init__(self, name, email, message):
-        self.name = name
-        self.email = email
-        self.message = message
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(50))
-    response = db.Column(db.JSON)
-    score = db.Column(db.JSON)
-    profile_picture = db.Column(db.String(255))
-    name = db.Column(db.String(50))
-    description = db.Column(db.String(255))
-    role = db.Column(db.String(50))
-    affiliation = db.Column(db.String(50))
-
-    def __init__(self, username, password, response, score, profile_picture, name, description, role, affiliation):
-        self.username = username
-        self.password = password
-        self.response = response
-        self.score = score
-        self.profile_picture = profile_picture
-        self.name = name
-        self.description = description
-        self.role = role
-        self.affiliation = affiliation
-    
-    def __repr__(self):
-        return f"<User(username='{self.username}', password='{self.password}')>"
+from config import ALLOWED_EXTENSIONS, UPLOAD_FOLDER, app, db
+from flask import (Flask, flash, redirect, render_template, request, session,
+                   url_for)
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
+from form import ContactForm, LoginForm, SignupForm
+from model import ContactUs, User
+from utility import (allowed_file, generate_unique_filename, process_data,
+                     read_questions_from_csv)
+from werkzeug.utils import secure_filename
+from wtforms import (PasswordField, StringField, SubmitField, TextAreaField,
+                     validators)
 
 
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[validators.InputRequired()])
-    password = PasswordField('Password', validators=[validators.InputRequired()])
-
-
-    error = None  # Error message field
-
-
-class SignupForm(FlaskForm):
-    username = StringField('Username', validators=[validators.InputRequired()])
-    password = PasswordField('Password', [
-        validators.InputRequired()
-    ])
-    confirm_password = PasswordField('Confirm Password')
-    submit = SubmitField('Signup')
-    error = None  # Error message field
-
-@app.teardown_appcontext
-def teardown_appcontext(exception=None):
-    db.session.remove()
 
 # create a decorator function that checks if the user is logged in
 def login_required(f):
@@ -183,6 +108,11 @@ def login():
             # Set user session data
             session['user_id'] = user.id
             session['username'] = user.username
+
+            if user.score == {}:
+                flash('Please submit a survey first.', 'danger')
+                return redirect('/survey')
+
             return redirect('/profile')
 
         flash('Invalid username or password.', 'danger')
@@ -246,17 +176,24 @@ def signup():
         # Create a new user and add to the database
         username = form.username.data
         password = form.password.data
+        name = form.name.data
+        description = form.description.data
+        role = form.role.data
+        affiliation = form.affiliation.data
         confirm_password = form.confirm_password.data
 
         if password != confirm_password:
             # Passwords don't match, set error message
             # print('Passwords do not match.')
             flash('Passwords do not match.', 'danger')
+        elif User.query.filter_by(username=username).first():
+            # Username already exists, set error message
+            # print('Username already exists.')
+            flash('Username already exists.', 'danger')
         else:
-            user = User(username=username, password=password, response={}, score = {}, profile_picture='', name='', description='', role='', affiliation='')
+            user = User(username=username, password=password, response={}, score = {}, profile_picture='', name=name, description=description, role=role, affiliation=affiliation)
             db.session.add(user)
             db.session.commit()
-
             flash('User created successfully.', 'success')
             return redirect(url_for('login'))  # Redirect to login page
 
@@ -310,123 +247,11 @@ def survey():
     return render_template('survey.html', questions=questions)
 
 
-def read_questions_from_csv():
-    questions = []
-    with open('questions.csv', newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            questions.append(row)
-
-    for question in questions:
-        # convert each option key value pair to a 2d list 
-        if question['options']:
-            question['options'] = ast.literal_eval(question['options'])
-
-    return questions
-
-def process_data(data):
-    score_dict = {}
-    rating = {}
-
-    # TODO: change max score to be dynamic
-    max_score = {'Discover': 43, 'Discover Self': 25, 'Discover Opportunities': 18, 'Develop': 79, 'Develop Skills': 24, 'Develop Network': 55, 'Differentiate': 36, 'Document': 26, 'Max': 184}
-
-    for item in data:
-        section = item['section']
-        subsection = item['subsection']
-        score = int(item['score'])
-
-        if section in score_dict:
-            score_dict[section] += score
-        else:
-            score_dict[section] = score
-
-        if subsection in score_dict:
-            score_dict[subsection] += score
-        else:
-            score_dict[subsection] = score
-    
-    rating['temp'] = {'raw': 1, 'max': 1, 'percentage': 1, 'assessment score': 1}
-    rating['Discover'] = {'raw': score_dict['Discover Opportunities'] + score_dict['Discover Self'], 'max': max_score['Discover'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Develop'] = {'raw': score_dict['Develop Skills'] + score_dict['Develop Network'], 'max': max_score['Develop'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Differentiate'] = {'raw': score_dict['Differentiate'], 'max': max_score['Differentiate'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Document'] = {'raw': score_dict['Document'], 'max': max_score['Document'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Discover Self'] = {'raw': score_dict['Discover Self'], 'max': max_score['Discover Self'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Discover Opportunities'] = {'raw': score_dict['Discover Opportunities'], 'max': max_score['Discover Opportunities'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Develop Skills'] = {'raw': score_dict['Develop Skills'], 'max': max_score['Develop Skills'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Develop Network'] = {'raw': score_dict['Develop Network'], 'max': max_score['Develop Network'], 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    
-    for key, value in rating.items():
-        value['percentage'] = round(value['raw']/value['max'] * 100, 2)
-        value['assessment score'] = round(value['percentage']*1.20 + 40)
-        if value['assessment score'] >= 161:
-            value['classification'] = 'Master'
-        elif value['assessment score'] >= 101:
-            value['classification'] = 'Pro'
-        elif value['assessment score'] >= 61:
-            value['classification'] = 'Apprentice'
-        else:
-            value['classification'] = 'Dabbler'
-
-    # find the average score of Discover, Develop, Differentiate, Document and store in rating dict
-    rating['Combined Score'] = {'raw': (rating['Discover']['assessment score'] + rating['Develop']['assessment score'] + rating['Differentiate']['assessment score'] + rating['Document']['assessment score']), 'max': 160, 'percentage': 0, 'assessment score': 0, 'classification': ''}
-    rating['Combined Score']['assessment score'] = round(rating['Combined Score']['raw']/4)
-    rating['Combined Score']['percentage'] = rating['Combined Score']['assessment score']/rating['Combined Score']['max'] * 100
-    
-    if rating['Combined Score']['assessment score'] >= 161:
-            rating['Combined Score']['classification'] = 'Master'
-    elif rating['Combined Score']['assessment score'] >= 101:
-        rating['Combined Score']['classification'] = 'Pro'
-    elif rating['Combined Score']['assessment score'] >= 61:
-        rating['Combined Score']['classification'] = 'Apprentice'
-    else:
-        rating['Combined Score']['classification'] = 'Dabbler'
-    
-    rating['Combined Score']['description'] = ''
-
-    descriptions = {}
-
-    with open('descriptions.csv', newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-
-        for row in reader:
-            section = row['section']
-            subsection = row['subsection']
-            level = row['level']
-            description = row['description']
-            next_step = row['next steps']
-            
-            if subsection != 'None':
-                descriptions[subsection] = {'classification':level, 'description': description, 'next steps': next_step}
-            else:
-                descriptions[section] = {'classification':level, 'description': description, 'next steps': next_step}
-
-    for user_key, user_items in rating.items():
-        try:
-            rating[user_key]['description'] = descriptions[user_key]['description']
-            rating[user_key]['next steps'] = descriptions[user_key]['next steps']
-        except KeyError:
-            rating[user_key]['description'] = ''
-            rating[user_key]['next steps'] = ''
-
-    i, j = 0, 9
-    tups = list(rating.items())
-    
-    # swapping by indices
-    tups[i], tups[j] = tups[j], tups[i]
-    del tups[j]
-    
-    # converting back
-    rating = dict(tups)
-    print(rating)
-    db.session.query(User).filter_by(username=session['username']).update({'score': rating})
-    db.session.commit()
-    
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        app.run(debug=True, host='0.0.0.0')
+        app.run(debug=True)
 
 
 

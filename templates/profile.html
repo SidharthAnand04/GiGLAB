@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if results['Combined Score'] %}
+
 
 <head>
 
@@ -229,7 +229,7 @@
                 </div>
             </div>
             
-
+            {% if results['Combined Score'] %}
             <div class="col-md-8" style="margin-top: 5%;">
                 <div class="progress-bar-info">
                     <div class="percentage-text" style="left: 50%;"><p>Combined Score: {{ results['Combined Score']['assessment score'] }}</p></div>
@@ -498,7 +498,10 @@
 
     </script>
     {% else %}
-        please take the survey first
+    <div class="col-md auto">
+        <h1>Please Complete the Career Development Investment Apprasial to See Results</h1>
+        <button class="btn btn-primary" onclick="window.location.href='/survey'">Go to Survey</button>
+    </div>
     {% endif %}
 
 </body>

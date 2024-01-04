@@ -34,6 +34,16 @@
             color: #20D869;
         }
 
+        body{
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main{
+            flex-grow: 1;
+            margin-bottom: 1%;
+        }
 
         button {
       background-color: #20D869;
@@ -170,9 +180,12 @@
         {% endif %}
         {% endwith %}
     </section>
+
+<main>
 <section>
         {% block content %}{% endblock %}
 </section>
+</main>
     <footer class="bg-dark text-white py-1">
         <div class="container" style="margin-top: 5%;">
             <div class="row">
